@@ -35,3 +35,7 @@ Usage:
 !updates on|off — Enable or disable automatic updates.
 
 !status — Show current server status.
+
+Required Python Packages:
+discord.py mcstatus requests
+
