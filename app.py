@@ -39,6 +39,7 @@ DISPLAY_NAMES = {
 }
 
 # Kinetic server IDs (main + proxies)
+# Only include the servers you want it to ping with the API.
 KINETIC_SERVERS = {
     'main': 'YOUR_MAIN_SERVER_ID',
     'proxy1': '',
@@ -55,6 +56,7 @@ MC_SERVERS = {
 }
 
 # Subdomains to display
+# This will display on the Status embed, put your domains here.
 SUBDOMAINS = {
     'main': 'Join Via Proxies',
     'proxy1': 'YOUR_NA_PROXY_SUBDOMAIN',
@@ -63,15 +65,19 @@ SUBDOMAINS = {
 }
 
 # Discord channel ID for status message
+# The channel ID you want the bot to send the message to.
 CHANNEL_ID = 123456789012345678  # Replace with your channel ID (int)
 
 # Update interval in seconds
-UPDATE_INTERVAL = 60  # 5 minutes
+UPDATE_INTERVAL = 60  # 1 minute
 
 # Staff Role ID for command permissions
+# Role that can use the commands for the maintenance and stuff.
 STAFF_ROLE_ID = 123456789012345678  # Replace with your staff role ID (int)
 
 # ID of the status message to edit (or None to send a new one)
+# This needs to be updated manually, Start the bot, copy the message ID of the embed it creates
+# put it here, restart your bot and it will update that embed periodically.
 status_message_id = None
 
 
