@@ -1,41 +1,37 @@
-# MCServerStatusDiscordBot
+# MC Server Status Discord Bot
+MC Server Status Discord Bot is a Discord bot built to monitor and manage Minecraft servers hosted on KineticHost. (Although, if you put the code through ChatGPT or something, you can change it to a diff host) It provides real-time server status updates, maintenance controls, and essential administrative commands — all accessible directly within your Discord server.
 
-Minecraft Server Status Discord Bot
+Features
+Real-Time Server Status
+Continuously updates an embed with player counts, server uptime, RAM usage (Only if your hosts API supports it), and maintenance status for your main Minecraft server and proxies.
 
-This Discord bot provides real-time status updates for your Minecraft servers, with built-in integration for KineticHost API and direct Minecraft server pings.
+Maintenance Mode Management
+Enable or disable maintenance mode for individual servers or all servers simultaneously using commands like !maintenance on all.
 
-Features:
+Update Control
+Toggle automatic embed updates on or off with !updates on/off.
 
-Displays Minecraft server online status and player counts for main and proxy servers.
+Server Power Controls
+Restart, start, or stop your servers remotely through Discord commands (!restart, !start, !stop).
 
-Fetches resource usage (RAM, status) via KineticHost API for the main server. *Although kinetic does not support ram atm, so I have set it to ?/16gb since my server has a max of 16gb*
+Console Command Integration
+Send commands such as !announce, !ban, !kick, and !pardon directly to your Minecraft server console.
 
-Supports toggling maintenance mode per server or all servers.
+Public Utility Commands
+Accessible by everyone in the Discord server:
 
-Commands to enable/disable automatic status updates.
+!ip — Display server IPs
 
-Configurable for different server hosts — users can replace or extend the API integration to support their own hosting provider.
+!players — Show current online player counts
 
-Sends status updates as embeds in a designated Discord channel.
+!ping — Check Discord bot latency and Minecraft server pings (note: bot hosted in Texas, ping reflects that)
 
-Role-based permissions for management commands.
+Staff-Only Controls
+Includes !setchannel to set the status message channel and !refresh to manually refresh status embeds.
 
-Setup:
+Configuration
+Replace placeholders for your Discord bot token, KineticHost API key, server IDs, role IDs, and channel IDs.
 
-Replace placeholders with your Discord bot token, API key(s), server IDs, Minecraft addresses, and Discord channel/role IDs.
+Fully customizable for any Minecraft network setup with proxies. (Or multiple servers, can also just do 1 server with some editing)
 
-If you use a different hosting provider, update or replace the get_kinetic_status function to fit your API or resource-fetching method.
-
-Run the bot to keep your community informed about server health and maintenance.
-
-Usage:
-
-!maintenance on|off <NA|EU|ASIA|MAIN|ALL> — Toggle maintenance mode.
-
-!updates on|off — Enable or disable automatic updates.
-
-!status — Show current server status.
-
-Required Python Packages:
-discord.py mcstatus requests
 
