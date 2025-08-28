@@ -12,10 +12,10 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 updates_enabled = True
 
 # ---- CONFIG ----
-DISCORD_TOKEN = 'YOUR_DISCORD_BOT_TOKEN_HERE'
+DISCORD_TOKEN = 'Your Discord Token Here' # DO NOT SHARE
 
 # KineticHost API stuff
-KINETIC_API_KEY = 'YOUR_KINETIC_API_KEY_HERE'
+KINETIC_API_KEY = 'Your API Key Here' #DO NOT SHARE
 KINETIC_PANEL_URL = 'https://kineticpanel.net'  # Change if needed
 
 maintenance_status = {
@@ -40,30 +40,31 @@ DISPLAY_NAMES = {
 }
 # Kinetic server IDs (main + proxies)
 KINETIC_SERVERS = {
-    'main': 'YOUR_MAIN_SERVER_ID',
-    'proxy1': 'YOUR_PROXY1_SERVER_ID',
-    'proxy2': 'YOUR_PROXY2_SERVER_ID',
-    'proxy3': 'YOUR_PROXY3_SERVER_ID',
+    'main': 'Server ID Here', #Not limited to Kinetic, but that's just what I use.
+    'proxy1': '',
+    'proxy2': '',
+    'proxy3': '',
 }
 
 # Minecraft addresses (IP or domain + port)
+# Amount of servers are customizable, it's also not required for them to be proxies, just rename the display names.
 MC_SERVERS = {
-    'main': 'YOUR_MAIN_MC_IP:PORT',
-    'proxy1': 'YOUR_PROXY1_MC_IP:PORT',
-    'proxy2': 'YOUR_PROXY2_MC_IP:PORT',
-    'proxy3': 'YOUR_PROXY3_MC_IP:PORT',
+    'main': 'Main Server IP Here', #IP:Port
+    'proxy1': 'Proxy IP Here', #IP:Port
+    'proxy2': 'Proxy IP Here', #IP:Port
+    'proxy3': 'Proxy IP Here', #IP:Port
 }
 
 # Subdomains to display
 SUBDOMAINS = {
     'main': 'Join Via Proxies',
-    'proxy1': 'YOUR_NA_PROXY_SUBDOMAIN',
-    'proxy2': 'YOUR_EU_PROXY_SUBDOMAIN',
-    'proxy3': 'YOUR_ASIA_PROXY_SUBDOMAIN',
+    'proxy1': 'Your.Domain.Here',
+    'proxy2': 'Your.Domain.Here',
+    'proxy3': 'Your.Domain.Here',
 }
 
 # Discord channel ID for status message
-CHANNEL_ID = YOUR_CHANNEL_ID_HERE  # integer without quotes, e.g. 123456789012345678
+CHANNEL_ID = Channel ID Here
 
 # Update interval in seconds
 UPDATE_INTERVAL = 60  # 1 minute
@@ -75,13 +76,20 @@ headers = {
     'Content-Type': 'application/json',
 }
 
-status_message_id = None  # Will hold the ID of the message to edit
-STAFF_ROLE_ID = YOUR_STAFF_ROLE_ID_HERE  # integer without quotes, e.g. 123456789012345678
+status_message_id = 1397331812832907496  # Will hold the ID of the message to edit
+STAFF_ROLE_ID = 1397348240634151016  # your staff role ID
+
 
 def get_kinetic_status(server_id):
     try:
         url = f"{KINETIC_PANEL_URL}/api/client/servers/{server_id}"
         resp = requests.get(url, headers=headers, timeout=10)
+
+#        print(f"🔎 API request to: {url}")
+#        print("🔐 Using API key (truncated):", KINETIC_API_KEY[:6] + "...") # ----- Only use if having issues with API
+#        print("📦 Raw JSON response:")
+#        print(resp.json())
+
         resp.raise_for_status()
         data = resp.json().get('attributes', {})
 
@@ -105,10 +113,14 @@ def get_kinetic_status(server_id):
 
 
 async def ping_mc_server(address):
+    loop = asyncio.get_running_loop()
     try:
-        server = JavaServer.lookup(address)
-        status = server.status()
-        return True, status.players.online, status.players.max
+        def blocking_ping():
+            server = JavaServer.lookup(address)
+            status = server.status()
+            return True, status.players.online, status.players.max
+
+        return await loop.run_in_executor(None, blocking_ping)
     except Exception:
         return False, 0, 0
 
@@ -232,11 +244,6 @@ async def updates(ctx, toggle: str = None):
         await ctx.send("⛔ Status updates have been **disabled**.")
 #------------------------------------------------------ Updates on/off command handler end -------------------------------------- #
 
-@bot.event
-async def on_ready():
-    print(f"Logged in as {bot.user}")
-    update_status.start()
-
 @tasks.loop(seconds=UPDATE_INTERVAL)
 async def update_status():
     if not updates_enabled:
@@ -287,7 +294,6 @@ async def restart(ctx, server: str):
         await ctx.send("❌ Failed to restart.")
 
 @bot.command()
-@commands.has_role(STAFF_ROLE_ID)
 async def start(ctx, server: str):
     server = server.lower()
     if server not in KINETIC_SERVERS or not KINETIC_SERVERS[server]:
@@ -315,6 +321,12 @@ async def stop(ctx, server: str):
         await ctx.send("❌ Failed to stop.")
 
 # --- Console Commands ---
+headers = {
+    'Authorization': f'Bearer {KINETIC_API_KEY}',
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+}
+
 def send_console_command(server_id, command):
     url = f"{KINETIC_PANEL_URL}/api/client/servers/{server_id}/command"
     payload = {"command": command}
@@ -380,6 +392,7 @@ async def ip(ctx, server: str = None):
             domain = SUBDOMAINS.get(key, "Unknown")
             lines.append(f"**{display_name}**: `{domain}`")
         await ctx.send("**Server IPs:**\n" + "\n".join(lines))
+
 @bot.command()
 async def players(ctx):
     lines = []
@@ -387,11 +400,9 @@ async def players(ctx):
         try:
             server = JavaServer.lookup(address)
             status = server.status()
-            display_name = DISPLAY_NAMES.get(key, key.capitalize())
-            lines.append(f"**{display_name}**: {status.players.online}/{status.players.max} players")
+            lines.append(f"**{key.upper()}**: {status.players.online}/{status.players.max} players")
         except Exception:
-            display_name = DISPLAY_NAMES.get(key, key.capitalize())
-            lines.append(f"**{display_name}**: Offline or unreachable")
+            lines.append(f"**{key.upper()}**: Offline or unreachable")
     await ctx.send("\n".join(lines))
 
 # --- Refresh ---
@@ -408,8 +419,8 @@ async def setchannel(ctx):
     global CHANNEL_ID
     CHANNEL_ID = ctx.channel.id
     await ctx.send(f"✅ Status updates will now post in {ctx.channel.mention}.")
+# --- Ping command --- 
 
-# --- Ping command ---
 @bot.command()
 async def ping(ctx):
     import time
@@ -441,7 +452,6 @@ async def ping(ctx):
     pings = {}
     for key, addr in MC_SERVERS.items():
         latency = await get_mc_ping(addr)
-        display_name = DISPLAY_NAMES.get(key, key.capitalize())
         pings[key] = f"{latency}ms" if latency is not None else "Offline"
 
     embed = discord.Embed(title="🏓 Pong!", color=discord.Color.green())
@@ -453,7 +463,6 @@ async def ping(ctx):
     embed.set_footer(text="📍 Bot is hosted in Texas. Minecraft ping is relative to that location.")
 
     await msg.edit(content=None, embed=embed)
-
 # ------ Cmds//Help command ------
 @bot.command(name="cmds")
 async def cmds(ctx):
@@ -473,13 +482,10 @@ async def cmds(ctx):
 **!updates on/off** - Enable/disable embed auto-updates.
 **!setchannel** - Set current channel as status channel.
 **!refresh** - Force refresh the status message.
-**!announce [message]** - Send announcement to the Minecraft server console.
-**!ban [user] [reason]** - Ban a user from the Minecraft server.
-**!kick [user] [reason]** - Kick a user from the Minecraft server.
-**!pardon [user]** - Unban a previously banned user from the Minecraft server.
-**!restart [server]** - Restart a KineticHost server.
-**!start [server]** - Start a KineticHost server.
-**!stop [server]** - Stop a KineticHost server.
+**!announce [message]** - Send announcement to the current channel.
+**!ban [user] [reason]** - Ban a user from the server.
+**!kick [user] [reason]** - Kick a user from the server.
+**!pardon [user]** - Unban a previously banned user.
     """.strip()
 
     embed.add_field(name="📢 Public Commands", value=public_commands, inline=False)
@@ -488,5 +494,44 @@ async def cmds(ctx):
 
     await ctx.send(embed=embed)
 
+# --- Background task to monitor main server ---
+ALERT_CHANNEL_ID = Channel ID Here
+MAIN_SERVER_ADDRESS = MC_SERVERS['main']  # e.g. '64.87.44.15:25565'
+last_main_status = None  # Track last status to avoid spamming
+
+@tasks.loop(seconds=30)
+async def monitor_main_server():
+    global last_main_status
+    channel = bot.get_channel(ALERT_CHANNEL_ID)
+    if channel is None:
+        print("Alert channel not found!")
+        return
+
+    try:
+        server = JavaServer.lookup(MAIN_SERVER_ADDRESS)
+        status = server.status()  # Raises exception if offline
+        current_status = "online"
+    except:
+        current_status = "offline"
+
+    # Only send alert if it just went offline
+    if current_status == "offline" and last_main_status != "offline":
+        await channel.send(
+            "⚠️ **Main Server Offline, Potential Crash?**\n"
+            "Use `!start` to attempt a restart."
+        )
+
+    last_main_status = current_status
+
+@monitor_main_server.before_loop
+async def before_monitor():
+    await bot.wait_until_ready()
+
+# Start the loop when bot is ready
+@bot.event
+async def on_ready():
+    print(f"✅ Logged in as {bot.user}")
+    if not monitor_main_server.is_running():
+        monitor_main_server.start()
 # ---- DO NOT DELETE BELOW ----
 bot.run(DISCORD_TOKEN)
